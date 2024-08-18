@@ -4,7 +4,7 @@ Guide for programming in Assembly. More stuff added as i learn.
 
 # General Commands
 
-- Setting values
+- ### Setting values
 
   It can be used to set variables
 
@@ -21,7 +21,7 @@ Guide for programming in Assembly. More stuff added as i learn.
   mov ax, bx ; this sets ax with the data stored in bx
   ```
 
-- Jump
+- ### Jump
 
   Jumps to a label, but code after it gets "lost" (basically, it dosen't get executed)
 
@@ -41,7 +41,7 @@ Guide for programming in Assembly. More stuff added as i learn.
   ; code after this will be executed
   ```
 
-- Labels
+- ### Labels
 
   These can be used to create points in code that can be accessed later.
 
@@ -61,7 +61,7 @@ Guide for programming in Assembly. More stuff added as i learn.
   mov ax, 0 ; sets ax to 0
   ```
 
-- Calls
+- ### Calls
 
   Jumps to a label but after the function/label ended execution it returns to where it was originally
 
@@ -83,7 +83,7 @@ Guide for programming in Assembly. More stuff added as i learn.
   ret ; return
   ```
 
-- Return
+- ### Return
 
   Exits an ongoing label/function.
   
@@ -108,7 +108,7 @@ Guide for programming in Assembly. More stuff added as i learn.
   ret ; returns
   ```
 
-- Define Byte
+- ### Define Byte
 
   Used to define 1 or multiple bytes
   
@@ -125,7 +125,7 @@ Guide for programming in Assembly. More stuff added as i learn.
   mytext db "Hello World!", 0 ; 'Hello World!' text with a NULL byte at the end. its memory address can be found by accessing 'mytext'
   ```
 
-- Define Word
+- ### Define Word
 
   Used to define 1 or multiple words (2 bytes, equivalent to a 'short' type in C# or a 16-Bit integer)
 
@@ -142,4 +142,139 @@ Guide for programming in Assembly. More stuff added as i learn.
   dw 0AA55h ; MBR signature in hexadecimal (bytes 55 and AA)
   dw 0FF02h, 0AA55h ; 2 bytes and the MBR signature (first 02 and FF, finally 55 and AA)
   ```
+
+- ### Define Doubleword
+
+  Used to define 1 or multiple doublewords (4 bytes, equivalent to a 'int' type in C# or a 32-Bit integer)
+
+  Usages:
+  ```asm
+  dd value
+  dd value1, value2
+  ddname dd value
+  ```
+
+  Example:
+
+  ```asm
+  dd 100000 ; 32-bit integer, in 16-bit this number would not be possible 
+  ```
+
+- ### Define Quadword
+
+  Used to define 1 or multiple quadwords (8 bytes, equivalent to a 'long' type in C# or a 64-Bit integer)
+
+  Usages:
+  ```asm
+  dq value
+  dq value1, value2
+  dqname dq value
+  ```
+
+  Example:
+
+  ```asm
+  dq 10345879094 ; 64-bit integer, in 32-bit it wouldn't be possible
+  ```
+
+- ### Define Ten Bytes
+
+  Used to define sets of 10 bytes
+
+  Usages:
+  ```asm
+  dt value
+  dt value1, value 2
+  dtname dt value
+  ```
+
+  Example:
+
+  ```asm
+  hello dt "HelloWorld" ; "HelloWorld" text. its 10 ASCII characters (10 bytes) which means it can be used with 'dt'
+  ```
   
+- ### Times
+
+  Used to fill data a certain amount of times
+
+  Usages:
+  ```asm
+  times number db data
+  variableName times number db data
+  ```
+
+  Example:
+
+  ```asm
+  myArray times 10 db 0 ; Creates an empty "array/variable" called myArray with a size of 10 bytes
+  times 510 - ($ - $$) db 0 ; Fills with zeroes the program until it reaches 510 (used for MBR/bootloaders)
+  ```
+
+- ### Increment
+
+  Increments 1 from a variable (Equivalent in C# to variable++;)
+
+  Usage:
+  ```asm
+  inc variable
+  ```
+
+  Example:
+
+  ```asm
+  aNumber db 14 ; Declare a byte with a value of 14
+  inc aNumber ; Increments 1 (14 + 1 = 15)
+  ```
+
+- ### Decrement
+
+  Decrements 1 from a variable (Equivalent in C# to variable--;)
+
+  Usage:
+  ```asm
+  dec variable
+  ```
+
+  Example:
+
+  ```asm
+  aNumber db 15 ; Declare a byte with a value of 15
+  dec aNumber ; Decrements 1 (15 - 1 = 14)
+  ```
+
+- ### Addition
+
+  Basic Addition function (Equivalent in C# to variable += number;)
+
+  Usages:
+  ```asm
+  add destination, source
+  add destination, number
+  ```
+
+  Example:
+
+  ```asm
+  firstNumber db 1 ; Declare a byte with a value of 1
+  secondNumber db 2 ; Declare a byte with a value of 2
+  add firstNumber, secondNumber ; Add secondNumber into firstNumber (2 + 1 = 3)
+  ```
+
+- ### Subtraction
+
+  Basic Subtraction function (Equivalent in C# to variable -= number;)
+
+  Usages:
+  ```asm
+  sub destination, source
+  sub destination, number
+  ```
+
+  Example:
+  
+  ```asm
+  firstNumber db 1 ; Declare a byte with a value of 1
+  secondNumber db 2 ; Declare a byte with a value of 2
+  sub firstNumber, secondNumber ; Subtract secondNumber into firstNumber (2 - 1 = 1)
+  ```
