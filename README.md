@@ -278,3 +278,58 @@ Guide for programming in Assembly. More stuff added as i learn.
   secondNumber db 2 ; Declare a byte with a value of 2
   sub firstNumber, secondNumber ; Subtract secondNumber into firstNumber (2 - 1 = 1)
   ```
+
+- ### BIOS Interrupts
+
+  Used to send an interrupt
+
+  Usage:
+  ```asm
+  int value
+  ```
+
+  Example:
+
+  ```asm
+  int 13h ; BIOS Interrupt used for disk access
+  ```
+  
+- ### Comparison
+
+  Used to compare 2 values to later use a conditional jump.
+
+  Usage:
+  ```asm
+  cmp firstValue, secondValue
+  ```
+
+  Example:
+
+  ```asm
+  counter db 0 ; Create a counter and start from 0
+  
+  loop: ; The test loop
+  inc counter ; Increment the counter by 1
+  cmp counter, 10 ; Compare the counter with 10
+  jle loop ; Jump to 'loop' if the first value (counter) is less or equal to the second value (10) from the last comparison
+  ```
+
+
+- ### Conditional Jumps
+
+  Here is a list of jump commands that can be used with comparison (``cmp``)
+
+  Usage:
+  ```asm
+  cmp firstValue, secondValue ; First make a comparison between two values
+  ; Then use one of the commands from the list below
+  ```
+  
+  |Name for signed data|Name for UNsigned data|Description|
+  |----|-----------|------|
+  |``je`` or ``jz``|``je`` or ``jz``|Jumps if **both values** are *equal*|
+  |``jne`` or ``jnz``|``jne`` or ``jnz``|Jumps if **both values** are *NOT equal*|
+  |``jg`` or ``jnle``|``ja`` or ``jnbe``|Jump if the **first value** is *greater than* the **second value**|
+  |``jge`` or ``jnl``|``jae`` or ``jnb``|Jump if the **first value** is *greater or equal than* the **second value**|
+  |``jl`` or ``jnge``|``jb`` or ``jnae``|Jump if the **first value** is *less than* the **second value**|
+  |``jle`` or ``jng``|``jbe`` or ``jna``|Jump if the **first value** is *less or equal than* the **second value**|
