@@ -386,7 +386,7 @@ Guide for programming in Assembly. More stuff added as i learn.
 
     |Register|Data|
     |--------|----|
-    |AL|Video mode flag (30h if mode is 0-5 and 7 | 3Fh if mode = 6 | 20h if mode is > 7)|
+    |AL|Video mode flag (``30h if mode is 0-5 and 7``  ``3Fh if mode = 6``  ``20h if mode is > 7``)|
 
   - ### AH 01h (Set Text Mode Cursor Shape)
  
