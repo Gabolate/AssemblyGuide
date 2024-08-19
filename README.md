@@ -334,6 +334,24 @@ Guide for programming in Assembly. More stuff added as i learn.
   |``jl`` or ``jnge``|``jb`` or ``jnae``|Jump if the **first value** is *less than* the **second value**|
   |``jle`` or ``jng``|``jbe`` or ``jna``|Jump if the **first value** is *less or equal than* the **second value**|
 
+- ### XOR
+
+  Can be used to set a value as 0 without using ``mov``
+
+  Plus, it works for Bitwise operations.
+
+  Usages:
+  ```asm
+  xor firstValue, secondValue ; used for Bitwise operations
+  xor value, value ; better alternative to mov value, 0
+  ```
+
+  Example:
+
+  ```asm
+  xor ax, ax ; set ax to 0
+  ```
+
 # Extra Details
 
 - ### High and Lower Bytes on Registers
@@ -349,6 +367,25 @@ Guide for programming in Assembly. More stuff added as i learn.
   You can access the first and second byte of a register by using 'H' for the higher (first) byte and 'L' for the lower (second) byte
 
   (e.g. AH and AL)
+
+- ### Bits
+  
+  This is used at the start of a program to specify the bits that its going to work with
+
+  (Usually, bootloaders use Real mode and Operating systems use either Protected or Long mode)
+  
+  ``BITS 16`` = Real mode
+  ``BITS 32`` = Protected mode
+  ``BITS 64`` = Long mode
+
+
+- ### MBR small details/notes
+
+  ```asm
+  BITS 16
+  org 7c00h
+  ```
+  must be at the start of the program
   
 
 - ### Pointers
@@ -420,7 +457,119 @@ Guide for programming in Assembly. More stuff added as i learn.
     |BH|Page (``0-3 in modes 2 & 3``  ``0 - 7 in modes 0 & 1``    ``0 on graphics modes``)|
     |DH|Row (X)|
     |DL|Column (Y)|
-    
+
+  - ### AH 03h (Get Cursor Information)
+ 
+    Main Interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|03h|
+    |BH|Page (``0-3 in modes 2 & 3``  ``0 - 7 in modes 0 & 1``    ``0 on graphics modes``)|
+
+    Returns:
+
+    |Register|Data|
+    |--------|----|
+    |CH|Initial Scan Line|
+    |CL|Final Scan Line|
+    |DH|Row (X)|
+    |DL|Column (Y)|
+
+  - ### AH 08h (Get Character and Color from Cursor)
+ 
+    Main Interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|08h|
+    |BH|Page (``0-3 in modes 2 & 3``  ``0 - 7 in modes 0 & 1``    ``0 on graphics modes``)|
+
+    Returns:
+
+    |Register|Data|
+    |--------|----|
+    |AH|Color|
+    |AL|Character|
+
+
+  - ### AH 09h (Write Character on the Cursor Position)
+ 
+    Main Interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|09h|
+    |AL|Character|
+    |BH|Page (``0-3 in modes 2 & 3``  ``0 - 7 in modes 0 & 1``    ``0 on graphics modes``)|
+    |BL|Color|
+    |CX|Number of times to write the character|
+
+  - ### AH 0Ah (Only Write Character on the Cursor Position)
+ 
+    Main Interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|0Ah|
+    |AL|Character|
+    |BH|Page (``0-3 in modes 2 & 3``  ``0 - 7 in modes 0 & 1``    ``0 on graphics modes``)|
+    |CX|Number of times to write the character|
+
+  - ### AH 0Bh (Change Background Color)
+ 
+    Main Interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|0Bh|
+    |BH|00h|
+    |BL|Color|
+
+
+  - ### AH 0Ch (Set Graphic Pixel)
+ 
+    Main Interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|0Ch|
+    |AL|Color|
+    |BH|Page (``0-3 in modes 2 & 3``  ``0 - 7 in modes 0 & 1``    ``0 on graphics modes``)|
+    |CX|X|
+    |DX|Y|
+
+  - ### AH 0Dh (Get Graphic Pixel)
+ 
+    Main Interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|0Dh|
+    |BH|Page (``0-3 in modes 2 & 3``  ``0 - 7 in modes 0 & 1``    ``0 on graphics modes``)|
+    |CX|X|
+    |DX|Y|
+
+    Returns:
+
+    |Register|Data|
+    |--------|----|
+    |AL|Color|
+
+  - ### AH 13h (Write String)
+ 
+    Main Interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|13h|
+    |AL|Write mode (``Update cursor after writing = 80h``  ``Text uses alternating chars and attributes = 40h``  ``Both modes: C0h``)|
+    |BH|Page (``0-3 in modes 2 & 3``  ``0 - 7 in modes 0 & 1``    ``0 on graphics modes``)|
+    |BL|Color|
+    |CX|String Length|
+    |DH|Row (X)|
+    |DL|Column (Y)|
+    |ES:BP|String position|
 
 - ### INT 13h (Disk Access)
 
