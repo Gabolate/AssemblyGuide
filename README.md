@@ -333,3 +333,152 @@ Guide for programming in Assembly. More stuff added as i learn.
   |``jge`` or ``jnl``|``jae`` or ``jnb``|Jump if the **first value** is *greater or equal than* the **second value**|
   |``jl`` or ``jnge``|``jb`` or ``jnae``|Jump if the **first value** is *less than* the **second value**|
   |``jle`` or ``jng``|``jbe`` or ``jna``|Jump if the **first value** is *less or equal than* the **second value**|
+
+# Extra Details
+
+- ### High and Lower Bytes on Registers
+
+  In assembly we have something called Registers (e.g. AX, BX, CX, etc)
+
+  which are usually used for calculation and when using Interrupts (On Interrupts its like the equivalent to Arguments)
+
+  Registers on 16-bit mode (Real mode) are made of 2 bytes (Word).
+  
+  Registers' words can be accessed when the register ends up in 'X' (e.g. AX)
+
+  You can access the first and second byte of a register by using 'H' for the higher (first) byte and 'L' for the lower (second) byte
+
+  (e.g. AH and AL)
+  
+
+- ### Pointers
+
+   Brackets ( ``[`` & ``]`` ) are used for pointers (equivalent to ``*`` in C# and ``&`` in C)
+
+   Example:
+  
+   ```asm
+   [testbyte]
+   ```
+
+# Interrupts Usage
+  
+  When using BIOS Interrupts you'll need some information stored in registers before calling the interrupt.
+
+  (Some interrupts store result values)
+
+  Take a look at the data tables to know what you need to specify for an specific interrupt.
+  
+  *Note: this section is not complete*
+
+- ### INT 10h (Graphics)
+
+  - ### AH 00h (Enable Video Mode)
+
+    Main interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|00h|
+    |AL|Video mode|
+
+    Returns:
+
+    |Register|Data|
+    |--------|----|
+    |AL|Video mode flag (30h if mode is 0-5 and 7 | 3Fh if mode = 6 | 20h if mode is > 7)|
+
+  - ### AH 01h (Set Text Mode Cursor Shape)
+ 
+    Note:
+    *This function changes the shape of text mode cursor.*
+
+    *Each character usually uses 8 scan lines.*
+ 
+    *CX = 0607h is a regular cursor*
+ 
+    *CX = 0007h is a full cursor*
+ 
+    *CX = 2607h is an invisible cursor*
+    
+    Main Interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|01h|
+    |CH|Initial Scan Line|
+    |CL|Final Scan Line|
+
+
+  - ### AH 02h (Set Cursor Position)
+ 
+    Main Interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|02h|
+    |BH|Page (``0-3 in modes 2 & 3``  ``0 - 7 in modes 0 & 1``    ``0 on graphics modes``)|
+    |DH|Row (X)|
+    |DL|Column (Y)|
+    
+
+- ### INT 13h (Disk Access)
+
+  - ### AH 42h (Reading from a Sector with LBA)
+    
+    Main interrupt:
+    
+    |Register|Data|
+    |--------|----|
+    |AH|42h|
+    |DL|Drive number|
+    |DS:SI|Disk address packet|
+    
+    Disk address packet:
+    
+    |Size|Description|
+    |----|-----------|
+    |Byte|Size of packet (10h or 18h)|
+    |Byte|Reserved (0h)|
+    |Word|Number of blocks (LBA) to transfer|
+    |DWord|Transfer buffer|
+    |QWord|Starting block number (LBA)|
+
+    Returns:
+
+    |Register|Description|
+    |--------|-----------|
+    |CF|Clear if success|
+    |AH|00h|
+    |CF|Set on error|
+    |AH|[Error code](https://www.ctyme.com/intr/rb-0606.htm#Table234)|
+  
+  - ### AH 43h (Writing to a Sector with LBA)
+
+    Main interrupt:
+    
+    |Register|Data|
+    |--------|----|
+    |AH|43h|
+    |AL|Write flags|
+    |DL|Drive number|
+    |DS:SI|Disk address packet|
+
+    Disk address packet:
+    
+    |Size|Description|
+    |----|-----------|
+    |Byte|Size of packet (10h or 18h)|
+    |Byte|Reserved (0h)|
+    |Word|Number of blocks (LBA) to transfer|
+    |DWord|Transfer buffer|
+    |QWord|Starting block number (LBA)|
+
+    Returns:
+
+    |Register|Description|
+    |--------|-----------|
+    |CF|Clear if success|
+    |AH|00h|
+    |CF|Set on error|
+    |AH|[Error code](https://www.ctyme.com/intr/rb-0606.htm#Table234)|
