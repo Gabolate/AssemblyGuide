@@ -539,6 +539,20 @@ Guide for programming in Assembly. More stuff added as i learn.
     |CX|X|
     |DX|Y|
 
+  - ### AH 0Eh (Teletype Output)
+
+    *I recommend this command for displaying characters*
+
+    Main Interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|0Eh|
+    |AL|Character to write|
+    |BH|Page|
+    |BL|Foreground color|
+
+
   - ### AH 0Dh (Get Graphic Pixel)
  
     Main Interrupt:
@@ -631,3 +645,22 @@ Guide for programming in Assembly. More stuff added as i learn.
     |AH|00h|
     |CF|Set on error|
     |AH|[Error code](https://www.ctyme.com/intr/rb-0606.htm#Table234)|
+
+
+- ### INT 16h (Keyboard)
+
+  - ### AH 0h (Get Keystroke)
+    
+    Main interrupt:
+    
+    |Register|Data|
+    |--------|----|
+    |AH|0h|
+
+    Returns:
+
+    |Register|Description|
+    |--------|-----------|
+    |AH|BIOS Scan code|
+    |AL|ASCII Character|
+    
