@@ -2,6 +2,89 @@
 Guide for programming in Assembly. More stuff added as i learn.
 
 
+# Registers
+
+Assembly has pre-made variables called 'Registers' that can be used for [interrupts](#interrupts-usage), [memory access](#pointers), [store information](#setting-values), etc
+
+Some registers have other versions of themselves, for example, AX is a 16-bit register and AL (8-bit register) is the lower bytes of AX
+
+Here's a list of general purpose registers for 16, 32 and 64 bits:
+
+|8-bits|16-bits|32-bits|64-bits|
+|------|-------|-------|-------|
+|AL(low)|AX(low)|EAX(low)|RAX|
+|AH(high)|AX(low)|EAX(low)|RAX|
+|BL(low)|BX(low)|EBX(low)|RBX|
+|BH(high)|BX(low)|EBX(low)|RBX|
+|CL(low)|CX(low)|ECX(low)|RCX|
+|CH(high)|CX(low)|ECX(low)|RCX|
+|DL(low)|DX(low)|EDX(low)|RDX|
+|DH(high)|DX(low)|EDX(low)|RDX|
+|(null)|BP(low)|EBP(low)|RBP|
+|(null)|SI(low)|ESI(low)|RSI|
+|(null)|DI(low)|EDI(low)|RDI|
+
+
+There's also another thing to notice, when you are in 16-bits you can only use your registers and the 8-bit ones,
+
+On 32-bit you can access 16-bit registers but not 8-bit, similar in 64-bits you can access 32-bit but not 16-bit or lower
+
+# The Stack
+
+The stack is used for storing temporal information and [calling functions](#calls)
+
+The way on how it works is that it starts at a certain address and it adds or removes bytes as needed (like a pile of books)
+
+There are certain commands to interact with the stack:
+
+- ``push``
+  
+  Adds data at the top of the stack
+
+  Example:
+  
+  ```asm
+  push AX ; Stores the data inside AX into the stack
+  push 30 ; Stores the number 30 into the stack
+  push dword 50 ; Stores the number 50 but as a dword (16-bits/2 bytes) into the stack
+  ```
+
+- ``pusha``
+  
+  Adds all the registers' data into the stack
+  
+  Its like using lots of 'push' commands with the registers (its not always recommended cuz it takes quite a bit of space in the stack)
+
+- ``pop``
+  
+  Retrieves and removes data from the stack
+  
+  Example:
+
+  ```asm
+  pop AX ; Stores the last 2 bytes added to the stack into AX (16-bits)
+  pop dword [0x8000] ; Stores the last 2 bytes added to the stack into the memory address 0x8000
+  ```
+
+ - ``popa``
+   
+   Retrieves all the last registers' data added into the stack
+
+  
+  Now, when the 'call' function uses the stack, it pushes the current memory address, and the 'ret' function jumps to the last address stored in the stack
+  
+  We can do something similar to jump to an specific address, like in this example:
+
+  ```asm
+  push 0x8000 ; We push the address we want to jump to
+  ret
+  ```
+  
+
+  There's something **important** to notice when using the stack, when you 'pop' data you have to do it the reversed way of how you 'pushed' them.
+
+  For example, if i pushed AX and then CX, i have to pop CX and then AX, otherwise it won't retrieve the right data
+  
 # General Commands
 
 - ### Setting values
@@ -63,7 +146,7 @@ Guide for programming in Assembly. More stuff added as i learn.
 
 - ### Calls
 
-  Jumps to a label but after the function/label ended execution it returns to where it was originally
+  Jumps to a label but after the function/label ended execution its capable of returning to where it was originally
 
   Usage:
   ```asm
@@ -80,7 +163,7 @@ Guide for programming in Assembly. More stuff added as i learn.
   
   mylabel: ; the label
   mov ax, 0 ; sets ax to 0
-  ret ; return
+  ret ; return to where it was before
   ```
 
 - ### Return
@@ -127,7 +210,7 @@ Guide for programming in Assembly. More stuff added as i learn.
 
 - ### Define Word
 
-  Used to define 1 or multiple words (2 bytes, equivalent to a 'short' type in C# or a 16-Bit integer)
+  Used to define 1 or multiple words (2 bytes, equivalent to a 'short'/'ushort' type in C# or a 16-Bit integer)
 
   Usages:
   ```asm
@@ -145,7 +228,7 @@ Guide for programming in Assembly. More stuff added as i learn.
 
 - ### Define Doubleword
 
-  Used to define 1 or multiple doublewords (4 bytes, equivalent to a 'int' type in C# or a 32-Bit integer)
+  Used to define 1 or multiple doublewords (4 bytes, equivalent to a 'int'/'uint' type in C# or a 32-Bit integer)
 
   Usages:
   ```asm
@@ -162,7 +245,7 @@ Guide for programming in Assembly. More stuff added as i learn.
 
 - ### Define Quadword
 
-  Used to define 1 or multiple quadwords (8 bytes, equivalent to a 'long' type in C# or a 64-Bit integer)
+  Used to define 1 or multiple quadwords (8 bytes, equivalent to a 'long'/'ulong' type in C# or a 64-Bit integer)
 
   Usages:
   ```asm
@@ -208,7 +291,7 @@ Guide for programming in Assembly. More stuff added as i learn.
 
   ```asm
   myArray times 10 db 0 ; Creates an empty "array/variable" called myArray with a size of 10 bytes
-  times 510 - ($ - $$) db 0 ; Fills with zeroes the program until it reaches 510 (used for MBR/bootloaders)
+  times 510 - ($ - $$) db 0 ; Fills with zeroes since the end of the program until it reaches 510 (used for MBR/bootloaders)
   ```
 
 - ### Increment
@@ -224,12 +307,15 @@ Guide for programming in Assembly. More stuff added as i learn.
 
   ```asm
   aNumber db 14 ; Declare a byte with a value of 14
-  inc aNumber ; Increments 1 (14 + 1 = 15)
+  inc byte [aNumber] ; Increments 1 (14 + 1 = 15)
+
+  mov AX, 20
+  inc AX ; We should get 21 (20 + 1 = 20)
   ```
 
 - ### Decrement
 
-  Decrements 1 from a variable (Equivalent in C# to variable--;)
+  Decrements 1 from a register or memory space (Equivalent in C# to variable--;)
 
   Usage:
   ```asm
@@ -240,7 +326,10 @@ Guide for programming in Assembly. More stuff added as i learn.
 
   ```asm
   aNumber db 15 ; Declare a byte with a value of 15
-  dec aNumber ; Decrements 1 (15 - 1 = 14)
+  dec byte [aNumber] ; Decrements 1 (15 - 1 = 14) | You need to specify the size of the variable, in this case its a byte
+
+  mov AX, 10
+  dec AX ; We get 9 (10 - 1 = 9)
   ```
 
 - ### Addition
@@ -258,7 +347,8 @@ Guide for programming in Assembly. More stuff added as i learn.
   ```asm
   firstNumber db 1 ; Declare a byte with a value of 1
   secondNumber db 2 ; Declare a byte with a value of 2
-  add firstNumber, secondNumber ; Add secondNumber into firstNumber (2 + 1 = 3)
+  mov AL, byte [firstNumber] ; We can't directly use firstNumber + secondNumber, we have to store at least one of them into a register
+  add AL, secondNumber ; Add secondNumber with firstNumber and store it in AL (2 + 1 = 3)
   ```
 
 - ### Subtraction
@@ -276,7 +366,8 @@ Guide for programming in Assembly. More stuff added as i learn.
   ```asm
   firstNumber db 1 ; Declare a byte with a value of 1
   secondNumber db 2 ; Declare a byte with a value of 2
-  sub firstNumber, secondNumber ; Subtract secondNumber into firstNumber (2 - 1 = 1)
+  mov AL, byte [firstNumber] ; We can't directly use firstNumber - secondNumber, we have to store at least one of them into a register
+  sub AL, secondNumber ; Subtract secondNumber with firstNumber and store it in AL (2 - 1 = 1)
   ```
 
 - ### BIOS Interrupts
@@ -310,7 +401,7 @@ Guide for programming in Assembly. More stuff added as i learn.
   
   loop: ; The test loop
   inc counter ; Increment the counter by 1
-  cmp counter, 10 ; Compare the counter with 10
+  cmp byte [counter], 10 ; Compare the counter with 10 (We have to specify the size here, cuz its not a register)
   jle loop ; Jump to 'loop' if the first value (counter) is less or equal to the second value (10) from the last comparison
   ```
 
@@ -336,7 +427,7 @@ Guide for programming in Assembly. More stuff added as i learn.
 
 - ### XOR
 
-  Can be used to set a value as 0 without using ``mov``
+  Can be used to set a value as 0 without using ``mov`` (Its useful cuz it uses sighly less space)
 
   Plus, it works for Bitwise operations.
 
@@ -354,19 +445,13 @@ Guide for programming in Assembly. More stuff added as i learn.
 
 # Extra Details
 
-- ### High and Lower Bytes on Registers
+- Real Mode 1MB of RAM
 
-  In assembly we have something called Registers (e.g. AX, BX, CX, etc)
+  Sometimes in Real Mode (16-bits) you are limited to 1MB of RAM even when valid 16-bit addresses exceed 1MB
 
-  which are usually used for calculation and when using Interrupts (On Interrupts its like the equivalent to Arguments)
-
-  Registers on 16-bit mode (Real mode) are made of 2 bytes (Word).
+  There is something called 'A20 Line' which is a method that allows the code to bypass the 1MB restriction
   
-  Registers' words can be accessed when the register ends up in 'X' (e.g. AX)
-
-  You can access the first and second byte of a register by using 'H' for the higher (first) byte and 'L' for the lower (second) byte
-
-  (e.g. AH and AL)
+  I'll probably make someday a tutorial on that either here or somewhere else
 
 - ### Bits
   
@@ -382,8 +467,8 @@ Guide for programming in Assembly. More stuff added as i learn.
 - ### MBR small details/notes
 
   ```asm
-  BITS 16
-  org 7c00h
+  [BITS 16] ; The bootloader uses 16-bit Real Mode
+  [org 0x7C00] ; This is to specify that the code starts at memory address 0x7C00
   ```
   must be at the start of the program
   
@@ -395,7 +480,9 @@ Guide for programming in Assembly. More stuff added as i learn.
    Example:
   
    ```asm
-   [testbyte]
+   mov AL, [0x8000] ; This will take the value from 0x8000 and store it in AL, it can also be used with registers but not all of them
+   mov AX, [BX] ; Example using a register (BX), it takes the value inside BX as a memory address
+   mov [0x8000], AL ; We can also store things into memory
    ```
 
 # Interrupts Usage
@@ -585,6 +672,14 @@ Guide for programming in Assembly. More stuff added as i learn.
     |DL|Column (Y)|
     |ES:BP|String position|
 
+- ### INT 12h (Get Memory Size)
+  Returns:
+  
+  |Register|Description|
+  |--------|-----------|
+  |AX|Number of Kilobytes of memory|
+
+
 - ### INT 13h (Disk Access)
 
   - ### AH 42h (Reading from a Sector with LBA)
@@ -649,13 +744,13 @@ Guide for programming in Assembly. More stuff added as i learn.
 
 - ### INT 16h (Keyboard)
 
-  - ### AH 0h (Get Keystroke)
+  - ### AH 00h (Get Keystroke)
     
     Main interrupt:
     
     |Register|Data|
     |--------|----|
-    |AH|0h|
+    |AH|00h|
 
     Returns:
 
@@ -663,4 +758,35 @@ Guide for programming in Assembly. More stuff added as i learn.
     |--------|-----------|
     |AH|BIOS Scan code|
     |AL|ASCII Character|
-    
+
+- ### INT 1Ah (System Time)
+
+  - ### AH 00h (Get System Time)
+ 
+    Main interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|00h|
+
+    Returns:
+
+    |Register|Description|
+    |--------|-----------|
+    |CX|Higher bytes of the Number of Clock Ticks since Midnight|
+    |DX|Lower bytes of the Number of Clock Ticks since Midnight|
+    |AL|Midnight flag (If it isn't a value of 0, Midnight passed since the last time the interrupt was used)|
+
+    For reference: Each second is around 18.2 Clock Ticks
+
+  - ### AH 01h (Set System Time)
+ 
+    Main interrupt:
+
+    |Register|Data|
+    |--------|----|
+    |AH|01h|
+    |CX|Higher bytes of the Number of Clock Ticks since Midnight|
+    |DX|Lower bytes of the Number of Clock Ticks since Midnight|
+
+    For reference: Each second is around 18.2 Clock Ticks
